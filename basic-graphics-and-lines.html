@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<style type="text/css">
+		*{ margin: 0; padding: 0; }
+		body { background: yellow; }
+		canvas { background: rgba(0,0,0,0.1) ; }
+
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="500">
+	</canvas>	
+
+<script type="text/javascript">
+$(window).ready(function(){
+	var canvas = $("#myCanvas");
+	// 调用getContext方法将得到的2D渲染上下文赋给变量context
+	var context = canvas.get(0).getContext("2d");
+	// 使用Canvas填满浏览器窗口
+	$(window).resize(resizeCanvas);  //当浏览器窗口大小调整时触发resize方法
+	resizeCanvas();
+	// 绘制(填充)矩形：context.fillRect(x, y, width, height); /*采用笛卡尔坐标系，其中x,y是左上角原点坐标*/
+	context.fillStyle = "rgb(255, 0, 0)";  //填充颜色
+	context.fillRect(40, 40, 100, 100);
+
+	// 绘制矩形轮廓：context.strokeRect(x, y, width, height);
+	context.strokeStyle = "blue";  //笔画描边
+	context.lineWidth = 5;  //线宽
+	context.strokeRect(180, 40, 100, 100);
+
+	// 绘制线条路径
+	context.beginPath();    //开始路径
+	context.strokeStyle = "pink";  //笔画描边
+	context.lineWidth = 10;  //线宽
+	context.moveTo(40, 40);  //设置路径原点
+	context.lineTo(280, 280);  //设置路径终点
+	context.moveTo(280, 40);  //设置路径原点
+	context.lineTo(40, 280);  //设置路径终点
+	context.closePath();    //结束路径
+	context.stroke();       //绘出路径轮廓
+
+	//弧度公式
+	var degrees = 1;  //1度
+	var radians = degrees * (Math.PI / 180);  //0.0175弧度
+
+	// 绘制圆形路径
+	context.beginPath();  
+	context.fillStyle = "rgb(0, 255, 0)";
+	// 绘制弧形：context.arc(x, y, radius, startAngle, endAngle, anticlockwise); 
+	// 它从与原点距离为一个半径且角度为开始角度的位置(x,y)开始，最后停在离原点一个半径且角度为结束角度的位置上  
+	context.arc(230, 90, 50, 0, Math.PI, false);
+	context.closePath();
+	context.fill();  //填充路径，与stroke类似
+
+	// 绘制文本
+	var text = "Hello World!";
+	context.fillStyle = "white";
+	context.strokeStyle = "white";
+	context.lineWidth = 1;  //线宽默认为1px
+	context.font = "italic 40px serif";
+	context.fillText(text, 40, 40);  //填充文本
+	context.strokeText(text, 40, 180);  //填充文本
+
+	// 擦除Canvas: 原点坐标和宽高尺寸，(会重置Canvas上的所有内容)
+	context.clearRect(200, 200, 50, 50);  //清除图中右下角一块方形区域
+	// context.clearRect(0, 0, canvas.width(), canvas.height());
+
+	function resizeCanvas() {
+		canvas.attr("width", $(window).get(0).innerWidth);
+		canvas.attr("width", $(window).get(0).innerHeight);
+		context.fillRect(0, 0, canvas.width(), canvas.height());
+	}	
+
+});
+
+
+</script>	
+</body>
+</html>
