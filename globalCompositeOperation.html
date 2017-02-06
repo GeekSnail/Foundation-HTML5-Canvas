@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>globalCompositeOperation</title>
+	<style type="text/css">
+		canvas { background: black; }
+	</style>
+</head>
+<body>
+    <label>globalCompositeOperation</label>
+    <select name="" id="prop">
+    	<option value="">请选择-------------</option>
+        <option value="source-over">source-over</option>
+        <option value="destination-over">destination-over</option>
+        <option value="source-atop">source-atop</option>
+        <option value="destination-atop">destination-atop</option>
+        <option value="source-in">source-in</option>
+        <option value="destination-in">destination-in</option>
+        <option value="source-out">source-out</option>
+        <option value="destination-out">destination-out</option>
+        <option value="lighter">lighter</option>
+        <option value="copy">copy</option>
+        <option value="xor">xor</option>
+    </select><br />选择前请点击 —>
+    <button id="clear">初始化</button><br />
+	<canvas id="myCanvas" width="250" height="300">	
+
+	<script type="text/javascript">
+		var context = document.getElementById('myCanvas').getContext("2d");
+		var objS = document.getElementById("prop");  // select
+		var objB = document.getElementById("clear"); // button
+		var attr = ""; // 定义选中的属性字符串
+
+		objS.addEventListener("change", function(){
+			attr = objS.options[objS.selectedIndex].value;
+			if(attr != "") {
+		    	context.globalCompositeOperation = attr; 
+		    	context.fillRect(100, 150, 100, 100); // 绘制粉色正方形（下）		  		
+			}
+		}, false)
+
+		// 初始化状态：上下蓝色方形，右上粉色方形(作为参照)，还有两条白色边线
+		objB.addEventListener("click", function(){
+			context.globalCompositeOperation = "source-over"; // 恢复默认合成值，以免影响后续操作
+			context.clearRect(0, 0, 250, 300); // 擦除画布
+
+			context.fillStyle = "rgb(63, 169, 245)"; // 目标蓝色
+			context.fillRect(50, 50, 100, 100); // 绘制上、下蓝色正方形
+			context.fillRect(50, 200, 100, 100); // 
+			context.fillStyle = "rgb(255, 123, 172)"; // 源粉色
+			context.fillRect(100, 0, 100, 100); // 绘制粉色正方形（上）
+
+			context.strokeStyle = "white"; // 白色路径
+			context.beginPath();
+			context.moveTo(0, 150);
+			context.lineTo(250, 150);
+			context.moveTo(0, 200);
+			context.lineTo(250, 200);			
+			context.closePath();
+			context.stroke();
+		}, false)
+	</script>
+</body>
+</html>

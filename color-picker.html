@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>color-picker</title>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+	<input type = "file" id = "file" name = "file" /><br/>
+	<canvas id="myCanvas" width="300" height="200"></canvas>
+	
+	<script type="text/javascript">
+		var canvas = document.getElementById('myCanvas');
+		var context = canvas.getContext("2d");
+		var image = new Image();
+		//image.setAttribute('crossOrigin', 'anonymous');
+
+		$('#file').change(function() {
+        	var imgFile = new FileReader();  
+        	imgFile.readAsDataURL(document.getElementById('file').files[0]);  
+        	imgFile.onload = function () {  
+	            var imgData = this.result; //base64数据    
+	            image.src = imgData;
+    	    }  
+    	});
+
+		image.onload=function(){
+			context.drawImage(image, 0, 0, 300, 200);
+		}
+
+		canvas.onclick=function(e){var dataUrl = canvas.toDataURL("image/png");
+			var canvasOffset = $("canvas").offset();
+		  var canvasX = Math.floor(e.pageX - canvasOffset.left);
+		  var canvasY = Math.floor(e.pageY - canvasOffset.top);
+		  var imageData = context.getImageData(canvasX, canvasY, 1, 1);
+		  var pixel = imageData.data;
+		  var pixelColor = "rgba(" + pixel[0] + ", " + pixel[1] + ", " + pixel[2] + ", " + pixel[3] + ")";
+		  $("body").css("backgroundColor", pixelColor);
+		};	
+	</script>
+</body>
+</html>
