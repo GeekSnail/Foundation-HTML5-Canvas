@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>mosaix-test</title>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="600">
+
+<script type="text/javascript">
+	var context = document.getElementById('myCanvas').getContext("2d");
+	var imageData = context.createImageData(400, 400); // 创建像素区域大小
+	var pixels = imageData.data; // CanvasPixelArray
+
+	// 马赛克块的个数
+	var numTileRows = 4,
+	    numTileCols = 4;
+	// 每个块的尺寸
+	var tileWidth = imageData.width / numTileCols,
+		tileHeight = imageData.height / numTileRows;
+	for(var r=0; r<numTileRows; r++) { // 块行4
+		for(var c=0; c<numTileCols; c++) { // 块列4
+	  	// 设置每个块的颜色
+	  	var red = Math.floor(Math.random()*255), // r
+	    	green = Math.floor(Math.random()*255), // g
+	        blue = Math.floor(Math.random()*255); // b
+
+	  	for(var tr=0; tr<tileHeight; tr++) { // 像素行125
+	    	for(var tc=0; tc<tileWidth; tc++) { // 像素列125
+			    // 计算像素的真实位置
+			    var trueX = c * tileWidth + tc,
+			    	trueY = r * tileHeight + tr;
+			    // 精确到每个像素的4个 r,g,b,alpha 值
+			    var pos = (trueY * (imageData.width * 4)) + (trueX * 4);      
+		        pixels[pos] = red; // r
+		        pixels[pos+1] = green; // g
+		        pixels[pos+2] = blue; // b
+		        pixels[pos+3] = 255; // alpha    
+	      }
+	    }
+	  }
+	}
+	context.putImageData(imageData, 0, 0); //
+</script>
+</body>
+</html>

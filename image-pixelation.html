@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>image-pixelation</title>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<style>
+		div { width: 99%; margin: auto; text-align: center; }
+		h2 { margin: 5px 0; }
+	</style>
+</head>
+<body>
+	<div><h2>Canvas-image-pixelation</h2>
+		<input type = "file" id = "file" name = "file"><br />小块尺寸
+		<input type="text" id = "size" name = "text" style="width:62px; margin-bottom: 5px">(2-25)
+		<button id="sizeOK">确定</button>
+		<button id="export">导出</button><br /><span></span><br /><!--换行为了避免按钮位置移动而触发失败-->
+		<canvas id="myCanvas" width="600" height=""></canvas>
+	</div>
+	<script type="text/javascript">
+		var canvas = document.getElementById('myCanvas');
+		var context = canvas.getContext("2d");
+		var image = new Image();
+		image.originCrossing = "anonymous";
+		$('#file').change(function() {
+			var imgFile = new FileReader();  
+			imgFile.readAsDataURL(this.files[0]); //document.getElementById('file').files[0] 
+			imgFile.onload = function () {  
+				var imgBase64 = this.result; //base64数据    
+		    	image.src = imgBase64;
+		    } 
+		    $('span').text('   加载中，请稍后...'); 
+		});
+		function setImageWidth(w,h,mW=1,mH=1){
+			if(image.width>600){
+				if(mW > 1) {
+					canvas.width = w/mW;
+					canvas.height = h/mH;						
+				} else {
+					canvas.width =600;
+					canvas.height = image.height / (image.width/600);						
+				}
+			} else {
+				canvas.width = image.width;
+				canvas.height = image.height;				
+			}			
+		}
+		image.onload=function(){
+			setImageWidth(600);
+			$('span').text(''); 
+			var multiW = image.width / 600,
+				multiH = image.height / canvas.height;
+		    context.drawImage(image, 0, 0, canvas.width, canvas.height); // canvas.width<600 或 ~600
+			var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+			var pixels = imageData.data; // CanvasPixelArray
+			
+			$('#sizeOK').mousedown(function(){
+				$('span').text('   加载中，请稍后...'); //注意，若因为加了文字使得按钮的位置发生了变化(流式布局)，就不能有效地触发click事件。
+			}).click(function(){
+				var size = $('#size').val(); // 每个块的尺寸
+				// 原始图像的马赛克块个数
+				var numTileRows = Math.floor(image.height/size),
+			    	numTileCols = Math.floor(image.width/size);
+				context.clearRect(0, 0, $('canvas').width(), $('canvas').height()); // 从画布清除图像
+				if (size == 1) {
+					context.drawImage(image, 0, 0, canvas.width, canvas.height); //size=1，绘制原图
+					$('span').text(''); 
+					return;
+				}
+				setImageWidth(numTileCols*size, numTileRows*size, multiW, multiH);
+				// 实际的马赛克块个数
+				var numRows = canvas.height/size +1,
+				 	numCols = canvas.width/size +1;
+				for(var r=0; r<numRows; r++) { // 块行
+					for(var c=0; c<numCols; c++) { // 块列
+					    // 当前块的中心位置元素从0开始表示的(x,y)坐标
+					    var x = c * size + size / 2,
+					    	y = r * size + size / 2;
+					    // 绘制最后一列后面还有空余时，取空余宽度中间位置的x
+					    if(c == Math.floor(canvas.width/size)){
+					    	x = c * size + (canvas.width - c * size)/2;
+					    }
+					    // 绘制最后一行下面还有空余时，取空余高度中间位置的y
+					    if(r == Math.floor(canvas.height/size)){
+					    	y = r * size + (canvas.height - r * size)/2;
+					    }
+					    // CanvasPixelArray中该像素的索引值
+					    var pos = (Math.floor(y-0.5)* (imageData.width * 4)) + (Math.floor(x-0.5) * 4);      
+				        var red = pixels[pos], // r
+				            green = pixels[pos+1], // g
+				        	blue = pixels[pos+2]; // b
+				        // 设置填充颜色
+				        context.fillStyle = "rgb(" +red+ "," +green+ "," +blue+ ")";
+				        //context.fillRect(x-size/2, y-size/2, size, size);
+				        context.beginPath();
+				        context.arc(x, y, size/2, Math.PI*2, false);
+				        context.closePath();
+				        context.fill();
+				    }
+				}	
+				$('span').text(''); 
+				$('#export').click(function(){
+					var dataURL = canvas.toDataURL();
+					var el = document.createElement("a");
+					document.body.appendChild(el);
+					el.href = dataURL; //url连接
+					el.target = '_blank'; //新窗口打开
+					el.click();
+					document.body.removeChild(el);
+				});
+		    });
+		}
+	</script>
+</body>
+</html>

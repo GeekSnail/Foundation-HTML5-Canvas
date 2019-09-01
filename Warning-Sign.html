@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Warning-Sign</title>
+	<style type="text/css">
+		*{ margin: 0; padding: 0; }
+		html, body { width: 100%; height: 100%; }
+		/*body { background: yellow; }*/
+		/*canvas { background: rgba(0,0,0,0.1); display: block;}*/
+
+	</style>
+</head>
+<body>
+	<canvas id="canvasId" width="165" height="145"></canvas>
+</body>
+<script type="text/javascript">
+	// 1. 获取2d渲染上下文
+	var context = document.getElementById('canvasId').getContext("2d");
+
+	// 2. create a triangle 创建三角形
+	var width = 125,
+	    height = 105,
+		padding = 20;
+
+	// 3. Draw a path 绘制路径
+	context.beginPath();
+	context.moveTo( padding + width / 2 , padding ); // Top (20+125/2, 20)
+	context.lineTo( padding + width , height + padding ); // bottom right (20+125, 20+105)
+	context.lineTo( padding , height + padding ); // bottom left (20, 20+105)
+	context.closePath(); 
+
+	// Fill the path 填充路径
+	context.fillStyle = "#ffc821";
+	context.fill();
+
+	// 4. Create fill gradient 创建填充渐变
+	var gradient = context.createLinearGradient( 0, 0, 0, height );
+	gradient.addColorStop( 0, primaryColor );
+	gradient.addColorStop( 1, secondaryColor );
+
+	// fill the path 填充渐变
+	context.fillStyle = gradient;
+	context.fill();
+
+	// 5. Add a shadow around the object 在对象周围添加阴影
+	context.shadowBlur = 10;
+	context.shadowColor = "black";
+
+	// 6. Stroke the outer outline 描边外轮廓
+	context.lineWidth = lineWidth * 2;
+	context.lineJoin = "round";
+	context.strokeStyle = gradient;
+	context.stroke();	
+
+	// 7. Turn off the shadow, or all future fills will have shadows 关闭阴影，否则将来所有填充都会有阴影
+	context.shadowColor = "transparent";
+
+	// fill the path 填充渐变
+	context.fillStyle = gradient;
+	context.fill(); 
+
+	// 8. Add a horizon reflection with a gradient to transparent 添加一个渐变到透明的水平反射
+	gradient = context.createLinearGradient( 0, padding, 0, padding + height );
+	gradient.addColorStop( 0.5, "transparent" );
+	gradient.addColorStop( 0.5, "#dcaa09" );
+	gradient.addColorStop( 1, "#faf100" );
+
+	// fill the path 填充渐变
+	context.fillStyle = gradient;
+	context.fill(); 
+
+	// 9. Stroke the inner outline 描边内轮廓
+	context.lineWidth = lineWidth;
+	context.lineJoin = "round";
+	context.strokeStyle = "#333";
+	context.stroke();
+
+	// 8.
+	// context.lineWidth = 20;
+	// context.lineJoin = "round";
+	// context.strokeStyle = gradient;
+	// context.stroke();
+
+	// 10. Add the exclamation point using context's fillText method. Don't forget try/catch to stop Internet Explorer 8.0 from going to error town
+	context.textAlign = "center";
+	context.textBaseline = "middle";
+	context.font = "bold 60px 'Times New Roman', Times, serif";
+	context.fillStyle = gradient;
+	try {
+		context.fillText( "!", canvasWidth / 2, padding + height / 1.5 );
+	} catch(ex) {}
+	
+
+</script>
+</html>

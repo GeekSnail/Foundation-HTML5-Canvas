@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>pre-animation</title>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<style type="text/css">
+	*{margin: auto; padding: auto}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="" height=""></canvas>
+	<div>
+		<button id="startAnimation">start</button>
+		<button id="stopAnimation">stop</button>
+	</div>
+
+	<script type="text/javascript">
+	var canvas = $('#myCanvas').get(0);
+	var context = canvas.getContext('2d');
+	canvas.width = $(window).width();
+	canvas.height = $(window).height() - 2*$('#startAnimation').height();
+
+	var playAnimation = true;
+	var startBtn = $('#startAnimation'),
+		stopBtn = $('#stopAnimation');
+
+	startBtn.hide();
+	startBtn.click(function(){
+		$(this).hide();
+		stopBtn.show();
+		playAnimation = true;
+		animate();
+	});
+	stopBtn.click(function(){
+		$(this).hide();
+		startBtn.show();
+		playAnimation = false;
+
+	});
+
+	var Shape = function(){
+		this.x = Math.random()*canvas.width;
+		this.y = Math.random()*canvas.height;
+		this.width = Math.random()*50;
+		//this.height = this.width;
+		// 运动半径在0~30
+		this.radius = Math.random()*30;
+		this.angle = 0;
+
+   		this.r = Math.floor(Math.random()*255);
+        this.g = Math.floor(Math.random()*255);
+        this.b = Math.floor(Math.random()*255);	
+        this.a = Math.floor(Math.random()*255);	
+	}
+	var shapes = new Array();
+	for (var i = 0; i < 200; i++) {
+		// var x = Math.random()*canvas.width,
+		// 	y = Math.random()*canvas.height;
+		// var width = height = Math.random()*50;
+		shapes.push(new Shape());	
+	}
+
+	function animate(){
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		for (var i = 0; i < shapes.length; i++) {
+			var x = shapes[i].x + (shapes[i].radius * Math.cos(shapes[i].angle * (Math.PI/180))),
+				y = shapes[i].y + (shapes[i].radius * Math.sin(shapes[i].angle * (Math.PI/180)));
+			// 速度随机
+			shapes[i].angle += Math.random()*10;
+			if(shapes[i].angle > 360) {
+				shapes[i].angle = 0;
+			}		
+			// 设置每个块的颜色
+            context.fillStyle = 'rgba(' +shapes[i].r+ ',' +shapes[i].g+ ',' +shapes[i].b+ ',' +shapes[i].a+ ')';
+			//context.fillRect(x, y, shapes[i].width, shapes[i].height);
+			context.beginPath();
+	        context.arc(x+shapes[i].width/2, y+shapes[i].width/2, shapes[i].width/2, Math.PI*2, false);
+	        context.closePath();
+	        context.fill();
+		}
+		if(playAnimation){
+			setTimeout(animate, 13);
+		} 
+	}
+	animate();
+	</script>
+</body>
+</html>

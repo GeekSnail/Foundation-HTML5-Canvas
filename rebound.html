@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+
+	<title>rebound</title>
+	<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<style type="text/css">
+	*{ margin: auto; }
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="" height="400"></canvas>
+	<div>
+	    <button id="startAnimation">start</button>
+	    <button id="stopAnimation">stop</button>
+	</div>
+
+	<script type="text/javascript">
+	var canvas = $('#myCanvas').get(0);
+	var context = canvas.getContext('2d');
+	$(window).resize( Resize );
+	function Resize(){
+		canvas.width = $(window).width();
+		canvas.height = $(window).height() - 2*$('button').height();		
+	}
+	Resize();
+
+	var playAnimation = true; // 用于停止或播放动画循环
+	var startBtn = $('#startAnimation'),
+	    stopBtn = $('#stopAnimation');
+
+	startBtn.hide();
+	startBtn.click(function(){
+	    $(this).hide();
+	    stopBtn.show();
+	    playAnimation = true;
+	    animate();
+	});
+	stopBtn.click(function(){
+	    $(this).hide();
+	    startBtn.show();
+	    playAnimation = false;
+	});
+
+	var Shape = function() {
+	    this.x = Math.random()*canvas.width;
+	    this.y = Math.random()*canvas.height;
+	    this.width = Math.random()*60+2;
+	    this.height = this.width;
+		this.step = Math.random()*5+1;
+
+   		this.r = Math.floor(Math.random()*255);
+        this.g = Math.floor(Math.random()*255);
+        this.b = Math.floor(Math.random()*255);	
+        this.a = Math.floor(Math.random()*255);	
+
+	    this.reverseX = false;
+	    this.reverseY = false;
+	}	
+	var shapes = new Array();
+	for(var i=0; i<200; i++) {
+	    shapes.push(new Shape());
+	}
+
+	function animate() {
+	    // 更新、清除、绘制
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+	    for (var i = 0; i < shapes.length; i++) {
+	        if (shapes[i].x < 0) {
+	        	shapes[i].reverseX = false;
+	        } else if(shapes[i].x + shapes[i].width > canvas.width) {
+	        	shapes[i].reverseX = true;
+	        }
+	        if (shapes[i].y < 0) {
+	        	shapes[i].reverseY = false;
+	        } else if(shapes[i].y + shapes[i].height > canvas.height) {
+	        	shapes[i].reverseY = true;
+	        }	     
+	        if (!shapes[i].reverseX) {
+	        	shapes[i].x += shapes[i].step;
+	        } else {
+	        	shapes[i].x -= shapes[i].step;
+	        }
+	        if (!shapes[i].reverseY) {
+	        	shapes[i].y += shapes[i].step;
+	        } else {
+	        	shapes[i].y -= shapes[i].step;
+	        }
+			// 设置每个块的颜色
+            context.fillStyle = 'rgba(' +shapes[i].r+ ',' +shapes[i].g+ ',' +shapes[i].b+ ',' +shapes[i].a+ ')';
+			//context.fillRect(x, y, shapes[i].width, shapes[i].height);
+			context.beginPath();
+	        context.arc(shapes[i].x+shapes[i].width/2, shapes[i].y+shapes[i].width/2, shapes[i].width/2, Math.PI*2, false);
+	        context.closePath();
+	        context.fill();
+
+
+	    }
+	    if(playAnimation){
+	    	setTimeout(animate, 13); // 每隔13毫秒调用一次animate函数
+	    }
+	}
+	animate();
+	</script>
+</body>
+</html>

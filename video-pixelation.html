@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>video-pixelation</title>
+    <script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <style type="text/css">
+      div {
+        text-align: center;
+      }
+      h2 {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h2>Canvas-video-pixelation</h2>
+      <canvas id="myCanvas" width="800" height="440">
+        <video id="myVideo" controls="">
+          <!-- <source src="https://freevlensorg-my.sharepoint.com/personal/17_freevlensorg_onmicrosoft_com/Documents/Videos/%E6%83%85%E4%B9%A6.Love.Letter.1995.800x448.mp4" type="video/mp4"> -->
+          <source src="./情书.Love.Letter.1995.800x448.mp4" type="video/mp4" />
+        </video>
+      </canvas>
+      <div>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var canvas = $("#myCanvas");
+      var context = canvas.get(0).getContext("2d");
+      var video = $("#myVideo");
+      video.get(0).originCrossing = "anonymous";
+      $("#play").click(function() {
+        video.get(0).play();
+      });
+      $("#stop").click(function() {
+        video.get(0).pause();
+      });
+      // 回调函数，在视频开始播放时运行，通过监听play事件实现
+      video.bind("play", function() {
+        drawCanvas();
+        setInterval(drawCanvas, 1);
+      });
+      function drawCanvas() {
+        if (video.get(0).paused || video.get(0).ended) {
+          return false;
+        }
+        context.drawImage(video.get(0), 0, 0, 800, 440);
+        //console.log('haha');
+        // 马赛克块的个数
+        var numTileRows = Math.floor(canvas.height() / 5),
+          numTileCols = Math.floor(canvas.width() / 5);
+
+        var imageData = context.getImageData(
+          0,
+          0,
+          canvas.width(),
+          canvas.height()
+        );
+        var pixels = imageData.data; // CanvasPixelArray
+        context.clearRect(0, 0, $("canvas").width(), $("canvas").height()); // 从画布清除图像
+
+        // 每个块的尺寸
+        var tileWidth = imageData.width / numTileCols,
+          tileHeight = imageData.height / numTileRows;
+        for (var r = 0; r < numTileRows; r++) {
+          // 块行
+          for (var c = 0; c < numTileCols; c++) {
+            // 块列
+            // 当前块的中心位置元素从0开始表示的(x,y)坐标
+            var x = c * tileWidth + tileWidth / 2,
+              y = r * tileHeight + tileHeight / 2;
+            // CanvasPixelArray中该像素的索引值
+            var pos = Math.floor(y) * (imageData.width * 4) + Math.floor(x) * 4;
+            var red = pixels[pos], // r
+              green = pixels[pos + 1], // g
+              blue = pixels[pos + 2]; // b
+            // 设置填充颜色
+            context.fillStyle =
+              "rgb(" + red + "," + green + "," + blue + ", .1)";
+            //context.fillRect(x - tileWidth / 2, y - tileHeight / 2, tileWidth, tileHeight);
+            context.beginPath();
+            context.arc(x, y, tileWidth / 2, Math.PI * 2, false);
+            context.closePath();
+            context.fill();
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
