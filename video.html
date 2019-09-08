@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>video-pixelation</title>
+    <script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <style type="text/css">
+      div {
+        text-align: center;
+      }
+      h2 {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h2>Canvas-video-pixelation.</h2>
+      <canvas id="myCanvas" width="800" height="440">
+        <video id="myVideo" controls="">
+          <!-- <source src="https://freevlensorg-my.sharepoint.com/personal/17_freevlensorg_onmicrosoft_com/Documents/Videos/%E6%83%85%E4%B9%A6.Love.Letter.1995.800x448.mp4" type="video/mp4"> -->
+          <source src="./情书.Love.Letter.1995.800x448.mp4" type="video/mp4" />
+        </video>
+      </canvas>
+      <div>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var canvas = $("#myCanvas");
+      var context = canvas.get(0).getContext("2d");
+      var video = $("#myVideo");
+      video.get(0).originCrossing = "anonymous";
+      $("#play").click(function() {
+        video.get(0).play();
+      });
+      $("#stop").click(function() {
+        video.get(0).pause();
+      });
+
+      // 回调函数，在视频开始播放时运行，通过监听play事件实现
+      video.bind("play", function() {
+        drawCanvas();
+        setInterval(drawCanvas, 0);
+      });
+      function drawCanvas() {
+        if (video.get(0).paused || video.get(0).ended) {
+          return false;
+        }
+        context.drawImage(video.get(0), 0, 0, 800, 440);
+        //console.log('haha');
+        // 马赛克块的个数
+        var numTileRows = Math.floor(canvas.height() / 5),
+          numTileCols = Math.floor(canvas.width() / 5);
+
+        var frame = context.getImageData(0, 0, canvas.width(), canvas.height());
+        var pixels = frame.data; // CanvasPixelArray
+        context.clearRect(0, 0, $("canvas").width(), $("canvas").height()); // 从画布清除图像
+
+        let l = frame.data.length / 4;
+
+        // for (let i = 0; i < l; i++) {
+        //   let r = frame.data[i * 4 + 0];
+        //   let g = frame.data[i * 4 + 1];
+        //   let b = frame.data[i * 4 + 2];
+        //   if (g < 10 && r < 10 && b < 10) frame.data[i * 4 + 3] = 0;
+        // }
+        // context.putImageData(frame, 0, 0);
+        for (let i = 0; i < canvas.height(); i++) {
+          for (let j = 0; j < canvas.width(); j++) {
+            let pos = Math.floor(i) * (frame.width * 4) + Math.floor(j) * 4;
+            console.log(pos);
+            let r = pixels[pos], // r
+              g = pixels[pos + 1], // g
+              b = pixels[pos + 2]; // b
+            if (
+              i < 20 ||
+              i > canvas.width() - 20 ||
+              j < 20 ||
+              j > canvas.height() - 20
+            ) {
+              console.log(i, j);
+              frame.data[pos + 3] = 0.5;
+            }
+          }
+        }
+        context.putImageData(frame, 0, 0);
+      }
+      function addFrameMask(ctx, x, y, w, h, size, color) {
+        var style;
+
+        style = setLinearStyle(ctx, x + size, y + size, x + size, y, color);
+        ctx.fillStyle = style;
+        ctx.fillRect(x + size, y, w - size * 2, size);
+
+        style = setRadialStyle(
+          ctx,
+          x + size,
+          y + size,
+          0,
+          x + size,
+          y + size,
+          size,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x, y, size, size);
+
+        style = setLinearStyle(ctx, x + size, y + size, x, y + size, color);
+        ctx.fillStyle = style;
+        ctx.fillRect(x, y + size, size, h - size * 2);
+
+        style = setRadialStyle(
+          ctx,
+          x + size,
+          y + h - size,
+          0,
+          x + size,
+          y + h - size,
+          size,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x, y + h - size, size, size);
+
+        style = setLinearStyle(
+          ctx,
+          x + size,
+          y + h - size,
+          x + size,
+          y + h,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x + size, y + h - size, w - size * 2, size);
+
+        style = setRadialStyle(
+          ctx,
+          x + w - size,
+          y + h - size,
+          0,
+          x + w - size,
+          y + h - size,
+          size,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x + w - size, y + h - size, size, size);
+
+        style = setLinearStyle(
+          ctx,
+          x + w - size,
+          y + size,
+          x + w,
+          y + size,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x + w - size, y + size, size, h - size * 2);
+
+        style = setRadialStyle(
+          ctx,
+          x + w - size,
+          y + size,
+          0,
+          x + w - size,
+          y + size,
+          size,
+          color
+        );
+        ctx.fillStyle = style;
+        ctx.fillRect(x + w - size, y, size, size);
+      }
+
+      function setRadialStyle(ctx, x1, y1, r1, x2, y2, r2, color) {
+        var tmp = ctx.createRadialGradient(x1, y1, r1, x2, y2, r2);
+        tmp.addColorStop(
+          0,
+          "rgba(" + color + "," + color + "," + color + ", 0)"
+        );
+        tmp.addColorStop(
+          1,
+          "rgba(" + color + "," + color + "," + color + ", 1)"
+        );
+        return tmp;
+      }
+
+      function setLinearStyle(ctx, x1, y1, x2, y2, color) {
+        var tmp = ctx.createLinearGradient(x1, y1, x2, y2);
+        tmp.addColorStop(
+          0,
+          "rgba(" + color + "," + color + "," + color + ", 0)"
+        );
+        tmp.addColorStop(
+          1,
+          "rgba(" + color + "," + color + "," + color + ", 1)"
+        );
+        return tmp;
+      }
+    </script>
+  </body>
+</html>
